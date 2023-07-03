@@ -1,0 +1,62 @@
+CREATE TABLE IF NOT EXISTS oauth_clients (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `client_id` VARCHAR(255) NOT NULL,
+    `client_secret` VARCHAR(255) NOT NULL,
+    `name` VARCHAR(255) NOT NULL,
+    `redirect` VARCHAR(255) NOT NULL,
+    `description` VARCHAR(255) NOT NULL,
+    `scope` VARCHAR(255) NOT NULL,
+    `created_by` INT NULL,
+    `updated_by` INT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL,
+    `deleted_at` TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `oauth_clients_client_id_unique` (`client_id`),
+    INDEX idx_oauth_clients_client_id(`client_id`),
+    INDEX idx_oauth_clients_created_by(`created_by`),
+    INDEX idx_oauth_clients_updated_by(`updated_by`),
+    CONSTRAINT FK_oauth_clients_created_by FOREIGN KEY (`created_by`) REFERENCES admins(`id`) ON DELETE SET NULL,
+    CONSTRAINT FK_oauth_clients_updated_by FOREIGN KEY (`updated_by`) REFERENCES admins(`id`) ON DELETE SET NULL 
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8;
+
+CREATE TABLE IF NOT EXISTS oauth_access_tokens (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `oauth_client_id` INT NULL,
+    `user_id` INT NOT NULL,
+    `token` VARCHAR(255) NULL,
+    `scope` VARCHAR(255) NULL,
+    `expired_at` TIMESTAMP NULL,
+    `created_by` INT NULL,
+    `updated_by` INT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL,
+    `deleted_at` TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `oauth_access_tokens_token_unique` (`token`),
+    INDEX idx_oauth_access_tokens_oauth_client_id(`oauth_client_id`),
+    INDEX idx_oauth_access_tokens_token(`token`),
+    INDEX idx_oauth_access_tokens_created_by(`created_by`),
+    INDEX idx_oauth_access_tokens_updated_by(`updated_by`),
+    CONSTRAINT FK_oauth_access_tokens_oauth_client_id FOREIGN KEY (`oauth_client_id`) REFERENCES oauth_clients(`id`) ON DELETE SET NULL
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8;
+
+CREATE TABLE IF NOT EXISTS oauth_refresh_tokens (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `oauth_access_token_id` INT NULL,
+    `user_id` INT NOT NULL,
+    `token` VARCHAR(255) NULL,
+    `expired_at` TIMESTAMP NULL,
+    `created_by` INT NULL,
+    `updated_by` INT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP NULL,
+    `deleted_at` TIMESTAMP NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `oauth_refresh_tokens_token_unique` (`token`),
+    INDEX idx_oauth_refresh_tokens_oauth_access_token_id(`oauth_access_token_id`),
+    INDEX idx_oauth_refresh_tokens_token(`token`),
+    INDEX idx_oauth_refresh_tokens_created_by(`created_by`),
+    INDEX idx_oauth_refresh_tokens_updated_by(`updated_by`),
+    CONSTRAINT FK_oauth_refresh_tokens_oauth_access_token_id FOREIGN KEY (`oauth_access_token_id`) REFERENCES oauth_access_tokens(`id`) ON DELETE SET NULL
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8;
