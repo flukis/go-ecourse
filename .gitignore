@@ -68,5 +68,5 @@ tags
 
 # local env
 .env
-temp/
+tmp/
 bin/
