@@ -52,8 +52,8 @@ func (uc *oAuthUsecase) Login(data domain.LoginRequestBody) (*domain.LoginRespon
 	)
 	if errBcrypt != nil {
 		return nil, &resp.ErrorResp{
-			Code: 500,
-			Err:  errBcrypt,
+			Code: 401,
+			Err:  errors.New("wrong password"),
 		}
 	}
 
