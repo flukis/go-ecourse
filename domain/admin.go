@@ -38,3 +38,13 @@ type AdminRepository interface {
 	Delete(Admin) *resp.ErrorResp
 	TotalCountAdmin() int64
 }
+
+type AdminUsecase interface {
+	FindAll(offset, limit int) []Admin
+	FindOneByID(id int) (*Admin, *resp.ErrorResp)
+	FindOneByEmail(email string) (*Admin, *resp.ErrorResp)
+	Create(AdminRequestBody) (*Admin, *resp.ErrorResp)
+	Update(int, AdminRequestBody) (*Admin, *resp.ErrorResp)
+	Delete(int) *resp.ErrorResp
+	TotalCountAdmin() int64
+}

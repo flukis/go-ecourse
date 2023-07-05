@@ -1,6 +1,9 @@
 package main
 
 import (
+	adminUC "e-course/internals/admin"
+	adminHTTPHandler "e-course/internals/admin/http"
+	adminRepo "e-course/internals/admin/mysql"
 	forgotPasswordUC "e-course/internals/forgot_password"
 	forgotPasswordHTTPHandler "e-course/internals/forgot_password/http"
 	forgotPasswordRepo "e-course/internals/forgot_password/mysql"
@@ -26,6 +29,7 @@ func main() {
 	oauthAccessRepository := oauthRepo.NewOauthAccessTokenRepository(db)
 	oauthRefreshRepository := oauthRepo.NewOauthRefreshTokenRepository(db)
 	forgotpasswordRepository := forgotPasswordRepo.NewMysqlForgotPasswordRepository(db)
+	adminRepository := adminRepo.NewMysqlAdminRepository(db)
 
 	mailUsecase := email.NewMailUsecase()
 	userUsecase := userUC.NewUserUsacase(userRepository)
@@ -37,6 +41,7 @@ func main() {
 		userUsecase,
 	)
 	forgotpasswordUsecase := forgotPasswordUC.NewForgotPasswordUsecase(forgotpasswordRepository, userUsecase, mailUsecase)
+	adminUsecase := adminUC.NewAdminUsecase(adminRepository)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,
@@ -45,6 +50,9 @@ func main() {
 		&r.RouterGroup,
 	)
 	forgotPasswordHTTPHandler.NewForgotPasswordhandler(forgotpasswordUsecase).Route(
+		&r.RouterGroup,
+	)
+	adminHTTPHandler.NewAdminHandler(adminUsecase).Route(
 		&r.RouterGroup,
 	)
 
