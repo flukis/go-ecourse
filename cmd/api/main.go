@@ -34,14 +34,15 @@ func main() {
 	mailUsecase := email.NewMailUsecase()
 	userUsecase := userUC.NewUserUsacase(userRepository)
 	registerUsecase := register.NewRegisterUsecase(userUsecase, mailUsecase)
+	adminUsecase := adminUC.NewAdminUsecase(adminRepository)
+	forgotpasswordUsecase := forgotPasswordUC.NewForgotPasswordUsecase(forgotpasswordRepository, userUsecase, mailUsecase)
 	oauthUseCase := oauthUC.NewOAuthUsecase(
 		oauthClientRepository,
 		oauthAccessRepository,
 		oauthRefreshRepository,
 		userUsecase,
+		adminUsecase,
 	)
-	forgotpasswordUsecase := forgotPasswordUC.NewForgotPasswordUsecase(forgotpasswordRepository, userUsecase, mailUsecase)
-	adminUsecase := adminUC.NewAdminUsecase(adminRepository)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,

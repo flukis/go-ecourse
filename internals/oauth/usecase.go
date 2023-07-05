@@ -16,6 +16,7 @@ type oAuthUsecase struct {
 	accessToken  domain.OauthAccessTokenRepository
 	refreshToken domain.OauthRefreshTokenRepository
 	userUsecase  domain.UserUsecase
+	adminUsecase domain.AdminUsecase
 }
 
 // Login implements domain.OAuthUsecase.
@@ -32,18 +33,35 @@ func (uc *oAuthUsecase) Login(data domain.LoginRequestBody) (*domain.LoginRespon
 	}
 
 	var user domain.UserResponse
-	dataUser, err := uc.userUsecase.FindByEmail(data.Email)
-	if err != nil {
-		return nil, &resp.ErrorResp{
-			Code: 400,
-			Err:  errors.New("user with that email is not found or invalid"),
-		}
-	}
 
-	user.ID = dataUser.ID
-	user.Email = dataUser.Email
-	user.Name = dataUser.Name
-	user.Password = dataUser.Password
+	// check if admin
+	if oauthClient.Name == "web-admin" {
+		dataEmail, err := uc.adminUsecase.FindOneByEmail(data.Email)
+		if err != nil {
+			return nil, &resp.ErrorResp{
+				Code: 400,
+				Err:  errors.New("admin with that email is not found or invalid"),
+			}
+		}
+
+		user.ID = dataEmail.ID
+		user.Email = dataEmail.Email
+		user.Name = dataEmail.Name
+		user.Password = dataEmail.Password
+	} else {
+		dataUser, err := uc.userUsecase.FindByEmail(data.Email)
+		if err != nil {
+			return nil, &resp.ErrorResp{
+				Code: 400,
+				Err:  errors.New("user with that email is not found or invalid"),
+			}
+		}
+
+		user.ID = dataUser.ID
+		user.Email = dataUser.Email
+		user.Name = dataUser.Name
+		user.Password = dataUser.Password
+	}
 
 	jwtKey := []byte(os.Getenv("JWT_SECRET"))
 	errBcrypt := bcrypt.CompareHashAndPassword(
@@ -67,6 +85,10 @@ func (uc *oAuthUsecase) Login(data domain.LoginRequestBody) (*domain.LoginRespon
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expTime),
 		},
+	}
+
+	if oauthClient.Name == "web-admin" {
+		claims.IsAdmin = true
 	}
 
 	token := jwt.NewWithClaims(
@@ -115,11 +137,13 @@ func NewOAuthUsecase(
 	accessToken domain.OauthAccessTokenRepository,
 	refreshToken domain.OauthRefreshTokenRepository,
 	userUsecase domain.UserUsecase,
+	adminUsecase domain.AdminUsecase,
 ) domain.OauthUsecase {
 	return &oAuthUsecase{
 		client:       client,
 		accessToken:  accessToken,
 		refreshToken: refreshToken,
 		userUsecase:  userUsecase,
+		adminUsecase: adminUsecase,
 	}
 }
