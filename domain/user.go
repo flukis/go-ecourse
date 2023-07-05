@@ -54,4 +54,6 @@ type UserUpdateRequestBody struct {
 type UserUsecase interface {
 	Create(data UserCreateRequestBody) (*User, *resp.ErrorResp)
 	FindByEmail(email string) (*User, *resp.ErrorResp)
+	FindOneByID(id int) (*User, *resp.ErrorResp)
+	UpdatePassword(id int, data UserUpdateRequestBody) (*User, *resp.ErrorResp)
 }

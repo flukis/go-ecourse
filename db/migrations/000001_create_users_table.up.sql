@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `name` VARCHAR(255) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
-  `code_verified` VARCHAR(255) NOT NULL,
+  `code_verified` VARCHAR(6) NOT NULL,
   `email_verified_at` TIMESTAMP NULL,
   `created_by` INT NULL,
   `updated_by` INT NULL,
