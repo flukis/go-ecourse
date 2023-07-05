@@ -86,7 +86,7 @@ func (u *forgotPasswordUsecase) Update(data domain.ForgotPasswordUpdateRequestBo
 		return nil, err
 	}
 
-	code.Valid = true
+	code.Valid = false
 	u.repo.Update(*code)
 	return code, err
 }
