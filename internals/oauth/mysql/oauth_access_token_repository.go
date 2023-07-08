@@ -12,13 +12,31 @@ type mysqlOauthAccessTokenRepository struct {
 }
 
 // Delete implements domain.OauthAccessTokenRepository.
-func (*mysqlOauthAccessTokenRepository) Delete(domain.OauthAccessToken) *resp.ErrorResp {
-	panic("unimplemented")
+func (m *mysqlOauthAccessTokenRepository) Delete(data domain.OauthAccessToken) *resp.ErrorResp {
+	if err := m.db.Delete(&data).Error; err != nil {
+		return &resp.ErrorResp{
+			Code: 500,
+			Err:  err,
+		}
+	}
+
+	return nil
 }
 
 // FindOneByAccessToken implements domain.OauthAccessTokenRepository.
-func (*mysqlOauthAccessTokenRepository) FindOneByAccessToken(accessToken string) (*domain.OauthAccessToken, *resp.ErrorResp) {
-	panic("unimplemented")
+func (m *mysqlOauthAccessTokenRepository) FindOneByAccessToken(accessToken string) (*domain.OauthAccessToken, *resp.ErrorResp) {
+	var oauthAccessToken domain.OauthAccessToken
+	if err := m.db.
+		Where("token = ?", accessToken).
+		First(&oauthAccessToken).
+		Error; err != nil {
+		return nil, &resp.ErrorResp{
+			Code: 500,
+			Err:  err,
+		}
+	}
+
+	return &oauthAccessToken, nil
 }
 
 // FindOneByOauthAccessTokenID implements domain.OauthAccessTokenRepository.
