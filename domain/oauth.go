@@ -54,7 +54,7 @@ type OauthAccessTokenRepository interface {
 
 type OauthRefreshToken struct {
 	ID                 int64             `json:"id"`
-	OauthAccessToken   *OauthAccessToken `gorm:"foreignKey:OauthAccessToken;reference:ID"`
+	OauthAccessToken   *OauthAccessToken `gorm:"foreignKey:OauthAccessTokenID;reference:ID"`
 	OauthAccessTokenID *int64            `json:"oauth_access_token_id"`
 	UserID             int64             `json:"user_id"`
 	Token              string            `json:"token"`
@@ -67,7 +67,7 @@ type OauthRefreshToken struct {
 type OauthRefreshTokenRepository interface {
 	Create(entity OauthRefreshToken) (*OauthRefreshToken, *resp.ErrorResp)
 	FindOneByToken(token string) (*OauthRefreshToken, *resp.ErrorResp)
-	FindOneByRefreshToken(refreshToken string) (*OauthRefreshToken, *resp.ErrorResp)
+	FindOneByAccessTokenID(accessToken string) (*OauthRefreshToken, *resp.ErrorResp)
 	Delete(OauthRefreshToken) *resp.ErrorResp
 }
 
@@ -124,4 +124,5 @@ type MapClaimResponse struct {
 
 type OauthUsecase interface {
 	Login(data LoginRequestBody) (*LoginResponse, *resp.ErrorResp)
+	Refresh(data RefreshTokenRequestBody) (*LoginResponse, *resp.ErrorResp)
 }

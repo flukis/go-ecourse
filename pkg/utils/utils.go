@@ -4,7 +4,9 @@ import (
 	"e-course/pkg/resp"
 	"errors"
 	"math/rand"
+	"time"
 
+	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
 
@@ -19,6 +21,12 @@ func RandString(length int) string {
 
 func IsErrorNot404(err *resp.ErrorResp) bool {
 	return err != nil && !errors.Is(err.Err, gorm.ErrRecordNotFound)
+}
+
+func GenerateRefreshToken() (ulid.ULID, error) {
+	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
+	ms := ulid.Timestamp(time.Now())
+	return ulid.New(ms, entropy)
 }
 
 func Paginate(offset, limit int) func(db *gorm.DB) *gorm.DB {
