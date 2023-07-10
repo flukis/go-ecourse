@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"e-course/domain"
 	"e-course/pkg/resp"
 	"errors"
 	"math/rand"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/oklog/ulid/v2"
 	"gorm.io/gorm"
 )
@@ -46,4 +48,9 @@ func Paginate(offset, limit int) func(db *gorm.DB) *gorm.DB {
 		offset = (page - 1) * limit
 		return db.Offset(offset).Limit(pageSize)
 	}
+}
+
+func GetCurrentUser(ctx *gin.Context) *domain.MapClaimResponse {
+	user, _ := ctx.Get("user")
+	return user.(*domain.MapClaimResponse)
 }

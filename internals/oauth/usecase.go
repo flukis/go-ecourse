@@ -39,7 +39,6 @@ func (uc *oAuthUsecase) Refresh(data domain.RefreshTokenRequestBody) (*domain.Lo
 	var user domain.UserResponse
 	isAdmin := false
 	expTime := time.Now().Add(24 * 365 * time.Hour)
-	fmt.Println(oauthRefreshToken)
 
 	if *oauthRefreshToken.OauthAccessToken.OauthClientID == 2 {
 		admin, _ := uc.adminUsecase.FindOneByID(int(oauthRefreshToken.UserID))
@@ -201,9 +200,11 @@ func (uc *oAuthUsecase) Login(data domain.LoginRequestBody) (*domain.LoginRespon
 		},
 	}
 
-	if oauthClient.ClientID == "web-admin" {
+	if oauthClient.ClientID == "2" {
 		claims.IsAdmin = true
 	}
+
+	fmt.Println(claims)
 
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,

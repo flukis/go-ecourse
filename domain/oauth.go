@@ -115,7 +115,7 @@ type MapClaimResponse struct {
 	ID      int64  `json:"id"`
 	Name    string `json:"name"`
 	Email   string `json:"email"`
-	IsAdmin string `json:"is_admin,omitempty"`
+	IsAdmin bool   `json:"is_admin,omitempty"`
 	jwt.MapClaims
 }
 
