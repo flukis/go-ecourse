@@ -2,7 +2,9 @@ package admin
 
 import (
 	"e-course/domain"
+	"e-course/internals/middleware"
 	"e-course/pkg/resp"
+	"e-course/pkg/utils"
 	"net/http"
 	"strconv"
 
@@ -20,11 +22,14 @@ func NewAdminHandler(uc domain.AdminUsecase) *AdminHandler {
 func (h *AdminHandler) Route(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
 
-	v1.GET("/admins", h.FindAll)
-	v1.GET("/admins/:id", h.FindByID)
-	v1.POST("/admins", h.Create)
-	v1.PUT("/admins/:id", h.Update)
-	v1.DELETE("/admins/:id", h.Delete)
+	v1.Use(middleware.AuthJwt, middleware.AuthAdmin)
+	{
+		v1.POST("/admins", h.Create)
+		v1.GET("/admins", h.FindAll)
+		v1.GET("/admins/:id", h.FindByID)
+		v1.PUT("/admins/:id", h.Update)
+		v1.DELETE("/admins/:id", h.Delete)
+	}
 }
 
 func (h *AdminHandler) Create(ctx *gin.Context) {
@@ -41,6 +46,9 @@ func (h *AdminHandler) Create(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
+
+	user := utils.GetCurrentUser(ctx)
+	input.CreatedBy = &user.ID
 
 	_, err := h.uc.Create(input)
 	if err != nil {
@@ -81,6 +89,9 @@ func (h *AdminHandler) Update(ctx *gin.Context) {
 		ctx.Abort()
 		return
 	}
+
+	user := utils.GetCurrentUser(ctx)
+	input.UpdatedBy = &user.ID
 
 	_, err := h.uc.Update(id, input)
 	if err != nil {

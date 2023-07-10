@@ -28,6 +28,10 @@ func (u *adminUsecase) Create(data domain.AdminRequestBody) (*domain.Admin, *res
 		Email:    data.Email,
 	}
 
+	if data.CreatedBy != nil {
+		dataAdmin.CreatedByID = data.CreatedBy
+	}
+
 	admin, errCreateAdmin := u.repo.Create(dataAdmin)
 	if errCreateAdmin != nil {
 		return nil, errCreateAdmin
@@ -95,6 +99,10 @@ func (u *adminUsecase) Update(id int, data domain.AdminRequestBody) (*domain.Adm
 		}
 	}
 	existed.Password = string(hashedPwd)
+
+	if data.UpdatedBy != nil {
+		existed.UpdatedByID = data.UpdatedBy
+	}
 
 	updatedAdmin, err := u.repo.Update(*existed)
 	if err != nil {
