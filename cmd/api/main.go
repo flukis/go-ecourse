@@ -10,12 +10,16 @@ import (
 	oauthUC "e-course/internals/oauth"
 	oauthHTTPHandler "e-course/internals/oauth/http"
 	oauthRepo "e-course/internals/oauth/mysql"
+	productCategoryUC "e-course/internals/product_category"
+	productCategoryHandler "e-course/internals/product_category/http"
+	productCategoryRepo "e-course/internals/product_category/mysql"
 	"e-course/internals/register"
 	userHTTPHandler "e-course/internals/register/http"
 	userUC "e-course/internals/user"
 	userRepo "e-course/internals/user/mysql"
 	mysql "e-course/pkg/db/mysql"
 	email "e-course/pkg/mail/sendgrid"
+	media "e-course/pkg/media/cloudinary"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +34,9 @@ func main() {
 	oauthRefreshRepository := oauthRepo.NewOauthRefreshTokenRepository(db)
 	forgotpasswordRepository := forgotPasswordRepo.NewMysqlForgotPasswordRepository(db)
 	adminRepository := adminRepo.NewMysqlAdminRepository(db)
+	productCategoryRepository := productCategoryRepo.NewMysqlProductCategoryRepository(db)
 
+	mediaUsecase := media.NewMediaUsecase()
 	mailUsecase := email.NewMailUsecase()
 	userUsecase := userUC.NewUserUsacase(userRepository)
 	registerUsecase := register.NewRegisterUsecase(userUsecase, mailUsecase)
@@ -43,6 +49,7 @@ func main() {
 		userUsecase,
 		adminUsecase,
 	)
+	productCategoryUsecase := productCategoryUC.NewProductCategoryUsecase(productCategoryRepository, mediaUsecase)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,
@@ -54,6 +61,9 @@ func main() {
 		&r.RouterGroup,
 	)
 	adminHTTPHandler.NewAdminHandler(adminUsecase).Route(
+		&r.RouterGroup,
+	)
+	productCategoryHandler.NewProductCategoryHandler(productCategoryUsecase).Route(
 		&r.RouterGroup,
 	)
 
