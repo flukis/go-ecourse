@@ -10,6 +10,9 @@ import (
 	oauthUC "e-course/internals/oauth"
 	oauthHTTPHandler "e-course/internals/oauth/http"
 	oauthRepo "e-course/internals/oauth/mysql"
+	productUC "e-course/internals/product"
+	productHandler "e-course/internals/product/http"
+	productRepo "e-course/internals/product/mysql"
 	productCategoryUC "e-course/internals/product_category"
 	productCategoryHandler "e-course/internals/product_category/http"
 	productCategoryRepo "e-course/internals/product_category/mysql"
@@ -35,6 +38,7 @@ func main() {
 	forgotpasswordRepository := forgotPasswordRepo.NewMysqlForgotPasswordRepository(db)
 	adminRepository := adminRepo.NewMysqlAdminRepository(db)
 	productCategoryRepository := productCategoryRepo.NewMysqlProductCategoryRepository(db)
+	productRepository := productRepo.NewMysqlProductRepository(db)
 
 	mediaUsecase := media.NewMediaUsecase()
 	mailUsecase := email.NewMailUsecase()
@@ -50,6 +54,7 @@ func main() {
 		adminUsecase,
 	)
 	productCategoryUsecase := productCategoryUC.NewProductCategoryUsecase(productCategoryRepository, mediaUsecase)
+	productUsecase := productUC.NewProductUsecase(productRepository, mediaUsecase)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,
@@ -64,6 +69,9 @@ func main() {
 		&r.RouterGroup,
 	)
 	productCategoryHandler.NewProductCategoryHandler(productCategoryUsecase).Route(
+		&r.RouterGroup,
+	)
+	productHandler.NewProductHandler(productUsecase).Route(
 		&r.RouterGroup,
 	)
 

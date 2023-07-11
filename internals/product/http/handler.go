@@ -1,4 +1,4 @@
-package product_category
+package product
 
 import (
 	"e-course/domain"
@@ -11,28 +11,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductCategoryHandler struct {
-	uc domain.ProductCategoryUsecase
+type ProductHandler struct {
+	uc domain.ProductUsecase
 }
 
-func NewProductCategoryHandler(uc domain.ProductCategoryUsecase) *ProductCategoryHandler {
-	return &ProductCategoryHandler{uc}
+func NewProductHandler(uc domain.ProductUsecase) *ProductHandler {
+	return &ProductHandler{uc}
 }
 
-func (h *ProductCategoryHandler) Route(r *gin.RouterGroup) {
+func (h *ProductHandler) Route(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
 
+	v1.GET("/products", h.FindAll)
+	v1.GET("/products/:id", h.FindByID)
 	v1.Use(middleware.AuthJwt, middleware.AuthAdmin)
 	{
-		v1.POST("/product_categories", h.Create)
-		v1.GET("/product_categories", h.FindAll)
-		v1.GET("/product_categories/:id", h.FindByID)
-		v1.PUT("/product_categories/:id", h.Update)
-		v1.DELETE("/product_categories/:id", h.Delete)
+		v1.POST("/products", h.Create)
+		v1.PUT("/products/:id", h.Update)
+		v1.DELETE("/products/:id", h.Delete)
 	}
 }
 
-func (h *ProductCategoryHandler) FindAll(ctx *gin.Context) {
+func (h *ProductHandler) FindAll(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset"))
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 
@@ -48,10 +48,10 @@ func (h *ProductCategoryHandler) FindAll(ctx *gin.Context) {
 	)
 }
 
-func (h *ProductCategoryHandler) FindByID(ctx *gin.Context) {
+func (h *ProductHandler) FindByID(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
-	data, err := h.uc.FindOneByID(id)
+	data, err := h.uc.FindOneById(id)
 	if err != nil {
 		ctx.JSON(
 			int(err.Code),
@@ -75,8 +75,8 @@ func (h *ProductCategoryHandler) FindByID(ctx *gin.Context) {
 	)
 }
 
-func (h *ProductCategoryHandler) Create(ctx *gin.Context) {
-	var input domain.ProductCategoryRequestBody
+func (h *ProductHandler) Create(ctx *gin.Context) {
+	var input domain.ProductRequestBody
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -117,9 +117,9 @@ func (h *ProductCategoryHandler) Create(ctx *gin.Context) {
 	)
 }
 
-func (h *ProductCategoryHandler) Update(ctx *gin.Context) {
+func (h *ProductHandler) Update(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	var input domain.ProductCategoryRequestBody
+	var input domain.ProductRequestBody
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -160,7 +160,7 @@ func (h *ProductCategoryHandler) Update(ctx *gin.Context) {
 	)
 }
 
-func (h *ProductCategoryHandler) Delete(ctx *gin.Context) {
+func (h *ProductHandler) Delete(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	err := h.uc.Delete(id)
