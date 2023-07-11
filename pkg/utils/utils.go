@@ -5,6 +5,7 @@ import (
 	"e-course/pkg/resp"
 	"errors"
 	"math/rand"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -53,4 +54,10 @@ func Paginate(offset, limit int) func(db *gorm.DB) *gorm.DB {
 func GetCurrentUser(ctx *gin.Context) *domain.MapClaimResponse {
 	user, _ := ctx.Get("user")
 	return user.(*domain.MapClaimResponse)
+}
+
+func GetFileName(filename string) string {
+	file := filepath.Base(filename)
+
+	return file[:len(file)-len(filepath.Ext(file))]
 }
