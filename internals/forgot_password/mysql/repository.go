@@ -1,4 +1,4 @@
-package forgotpassword
+package repository
 
 import (
 	"e-course/domain"

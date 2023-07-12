@@ -4,6 +4,9 @@ import (
 	adminUC "e-course/internals/admin"
 	adminHTTPHandler "e-course/internals/admin/http"
 	adminRepo "e-course/internals/admin/mysql"
+	cartUC "e-course/internals/cart"
+	cartHandler "e-course/internals/cart/http"
+	cartRepo "e-course/internals/cart/mysql"
 	discountUC "e-course/internals/discount"
 	discountHandler "e-course/internals/discount/http"
 	discountRepo "e-course/internals/discount/mysql"
@@ -43,6 +46,7 @@ func main() {
 	productCategoryRepository := productCategoryRepo.NewMysqlProductCategoryRepository(db)
 	productRepository := productRepo.NewMysqlProductRepository(db)
 	discountRepository := discountRepo.NewMysqlDiscountRepository(db)
+	cartRepository := cartRepo.NewMysqlCartRepository(db)
 
 	mediaUsecase := media.NewMediaUsecase()
 	mailUsecase := email.NewMailUsecase()
@@ -60,6 +64,7 @@ func main() {
 	productCategoryUsecase := productCategoryUC.NewProductCategoryUsecase(productCategoryRepository, mediaUsecase)
 	productUsecase := productUC.NewProductUsecase(productRepository, mediaUsecase)
 	discountUsecase := discountUC.NewDiscountUsecase(discountRepository, mediaUsecase)
+	cartUsecase := cartUC.NewCartUsecase(cartRepository)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,
@@ -80,6 +85,9 @@ func main() {
 		&r.RouterGroup,
 	)
 	discountHandler.NewDiscountHandler(discountUsecase).Route(
+		&r.RouterGroup,
+	)
+	cartHandler.NewCartHandler(cartUsecase).Route(
 		&r.RouterGroup,
 	)
 
