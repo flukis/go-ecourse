@@ -11,28 +11,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProductHandler struct {
-	uc domain.ProductUsecase
+type DiscountHandler struct {
+	uc domain.DiscountUsecase
 }
 
-func NewProductHandler(uc domain.ProductUsecase) *ProductHandler {
-	return &ProductHandler{uc}
+func NewDiscountHandler(uc domain.DiscountUsecase) DiscountHandler {
+	return DiscountHandler{uc}
 }
 
-func (h *ProductHandler) Route(r *gin.RouterGroup) {
+func (h DiscountHandler) Route(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
-
-	v1.GET("/products", h.FindAll)
-	v1.GET("/products/:id", h.FindByID)
 	v1.Use(middleware.AuthJwt, middleware.AuthAdmin)
 	{
-		v1.POST("/products", h.Create)
-		v1.PATCH("/products/:id", h.Update)
-		v1.DELETE("/products/:id", h.Delete)
+		v1.POST("/discounts", h.Create)
+		v1.GET("/discounts", h.FindAll)
+		v1.GET("/discounts/:id", h.FindByID)
+		v1.PATCH("/discounts/:id", h.Update)
+		v1.DELETE("/discounts/:id", h.Delete)
 	}
 }
 
-func (h *ProductHandler) FindAll(ctx *gin.Context) {
+func (h DiscountHandler) FindAll(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset"))
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 
@@ -48,7 +47,7 @@ func (h *ProductHandler) FindAll(ctx *gin.Context) {
 	)
 }
 
-func (h *ProductHandler) FindByID(ctx *gin.Context) {
+func (h DiscountHandler) FindByID(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	data, err := h.uc.FindOneById(id)
@@ -75,8 +74,35 @@ func (h *ProductHandler) FindByID(ctx *gin.Context) {
 	)
 }
 
-func (h *ProductHandler) Create(ctx *gin.Context) {
-	var input domain.ProductRequestBody
+func (h DiscountHandler) FindByCode(ctx *gin.Context) {
+	id := ctx.Param("code")
+
+	data, err := h.uc.FindOneByCode(id)
+	if err != nil {
+		ctx.JSON(
+			int(err.Code),
+			resp.Response(
+				int(err.Code),
+				http.StatusText(int(err.Code)),
+				err.Err.Error(),
+			),
+		)
+		ctx.Abort()
+		return
+	}
+
+	ctx.JSON(
+		http.StatusOK,
+		resp.Response(
+			http.StatusOK,
+			http.StatusText(http.StatusOK),
+			data,
+		),
+	)
+}
+
+func (h DiscountHandler) Create(ctx *gin.Context) {
+	var input domain.DiscountRequestBody
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -117,9 +143,9 @@ func (h *ProductHandler) Create(ctx *gin.Context) {
 	)
 }
 
-func (h *ProductHandler) Update(ctx *gin.Context) {
+func (h DiscountHandler) Update(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	var input domain.ProductRequestBody
+	var input domain.DiscountRequestBody
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -160,7 +186,7 @@ func (h *ProductHandler) Update(ctx *gin.Context) {
 	)
 }
 
-func (h *ProductHandler) Delete(ctx *gin.Context) {
+func (h DiscountHandler) Delete(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	err := h.uc.Delete(id)
