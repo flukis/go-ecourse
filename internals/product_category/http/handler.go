@@ -27,7 +27,7 @@ func (h *ProductCategoryHandler) Route(r *gin.RouterGroup) {
 		v1.POST("/product_categories", h.Create)
 		v1.GET("/product_categories", h.FindAll)
 		v1.GET("/product_categories/:id", h.FindByID)
-		v1.PUT("/product_categories/:id", h.Update)
+		v1.PATCH("/product_categories/:id", h.Update)
 		v1.DELETE("/product_categories/:id", h.Delete)
 	}
 }

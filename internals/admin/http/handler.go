@@ -27,7 +27,7 @@ func (h *AdminHandler) Route(r *gin.RouterGroup) {
 		v1.POST("/admins", h.Create)
 		v1.GET("/admins", h.FindAll)
 		v1.GET("/admins/:id", h.FindByID)
-		v1.PUT("/admins/:id", h.Update)
+		v1.PATCH("/admins/:id", h.Update)
 		v1.DELETE("/admins/:id", h.Delete)
 	}
 }

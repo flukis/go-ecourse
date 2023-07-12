@@ -14,7 +14,7 @@ type ForgotPasswordHandler struct {
 
 func (h *ForgotPasswordHandler) Route(r *gin.RouterGroup) {
 	r.POST("api/v1/forgot_password", h.Create)
-	r.PUT("api/v1/forgot_password", h.Update)
+	r.PATCH("api/v1/forgot_password", h.Update)
 }
 
 func (h *ForgotPasswordHandler) Create(ctx *gin.Context) {
