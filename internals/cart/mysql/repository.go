@@ -29,7 +29,7 @@ func (r *mysqlCartRepository) DeleteByUserId(userId int) *resp.ErrorResp {
 func (r *mysqlCartRepository) FindAllByUserId(userId int, offset int, limit int) []domain.Cart {
 	var carts []domain.Cart
 
-	r.db.Scopes(utils.Paginate(offset, limit)).Where("user_id = ?", userId).Find(&carts)
+	r.db.Scopes(utils.Paginate(offset, limit)).Preload("User").Preload("Product").Where("user_id = ?", userId).Find(&carts)
 
 	return carts
 }
@@ -37,7 +37,7 @@ func (r *mysqlCartRepository) FindAllByUserId(userId int, offset int, limit int)
 // FindOneById implements domain.CartRepository.
 func (r *mysqlCartRepository) FindOneById(id int) (*domain.Cart, *resp.ErrorResp) {
 	var cart domain.Cart
-	if err := r.db.Where("id = ?", id).First(&cart).Error; err != nil {
+	if err := r.db.Where("id = ?", id).Preload("User").Preload("Product").First(&cart).Error; err != nil {
 		return nil, &resp.ErrorResp{
 			Code: 500,
 			Err:  err,
