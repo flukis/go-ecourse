@@ -1,4 +1,4 @@
-package product
+package order
 
 import (
 	"e-course/domain"
@@ -11,31 +11,32 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DiscountHandler struct {
-	uc domain.DiscountUsecase
+type OrderHandler struct {
+	uc domain.OrderUsecase
 }
 
-func NewDiscountHandler(uc domain.DiscountUsecase) *DiscountHandler {
-	return &DiscountHandler{uc}
+func NewOrderHandler(uc domain.OrderUsecase) *OrderHandler {
+	return &OrderHandler{uc}
 }
 
-func (h *DiscountHandler) Route(r *gin.RouterGroup) {
-	v1 := r.Group("/api/v1")
-	v1.Use(middleware.AuthJwt, middleware.AuthAdmin)
+func (handler *OrderHandler) Route(r *gin.RouterGroup) {
+	orderRouter := r.Group("/api/v1")
+
+	orderRouter.Use(middleware.AuthJwt)
 	{
-		v1.POST("/discounts", h.Create)
-		v1.GET("/discounts", h.FindAll)
-		v1.GET("/discounts/:id", h.FindByID)
-		v1.PATCH("/discounts/:id", h.Update)
-		v1.DELETE("/discounts/:id", h.Delete)
+		orderRouter.POST("/orders", handler.Create)
+		orderRouter.GET("/orders", handler.FindAllByUserId)
+		orderRouter.GET("/orders/:id", handler.FindById)
 	}
 }
 
-func (h *DiscountHandler) FindAll(ctx *gin.Context) {
+func (h *OrderHandler) FindAllByUserId(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset"))
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 
-	data := h.uc.FindAll(offset, limit)
+	user := utils.GetCurrentUser(ctx)
+
+	data := h.uc.FindAllByUserId(int(user.ID), offset, limit)
 
 	ctx.JSON(
 		http.StatusOK,
@@ -47,62 +48,8 @@ func (h *DiscountHandler) FindAll(ctx *gin.Context) {
 	)
 }
 
-func (h *DiscountHandler) FindByID(ctx *gin.Context) {
-	id, _ := strconv.Atoi(ctx.Param("id"))
-
-	data, err := h.uc.FindOneById(id)
-	if err != nil {
-		ctx.JSON(
-			int(err.Code),
-			resp.Response(
-				int(err.Code),
-				http.StatusText(int(err.Code)),
-				err.Err.Error(),
-			),
-		)
-		ctx.Abort()
-		return
-	}
-
-	ctx.JSON(
-		http.StatusOK,
-		resp.Response(
-			http.StatusOK,
-			http.StatusText(http.StatusOK),
-			data,
-		),
-	)
-}
-
-func (h *DiscountHandler) FindByCode(ctx *gin.Context) {
-	id := ctx.Param("code")
-
-	data, err := h.uc.FindOneByCode(id)
-	if err != nil {
-		ctx.JSON(
-			int(err.Code),
-			resp.Response(
-				int(err.Code),
-				http.StatusText(int(err.Code)),
-				err.Err.Error(),
-			),
-		)
-		ctx.Abort()
-		return
-	}
-
-	ctx.JSON(
-		http.StatusOK,
-		resp.Response(
-			http.StatusOK,
-			http.StatusText(http.StatusOK),
-			data,
-		),
-	)
-}
-
-func (h *DiscountHandler) Create(ctx *gin.Context) {
-	var input domain.DiscountRequestBody
+func (h *OrderHandler) Create(ctx *gin.Context) {
+	var input domain.OrderRequestBody
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -117,7 +64,7 @@ func (h *DiscountHandler) Create(ctx *gin.Context) {
 	}
 
 	user := utils.GetCurrentUser(ctx)
-	input.CreatedBy = &user.ID
+	input.UserID = user.ID
 
 	res, err := h.uc.Create(input)
 	if err != nil {
@@ -143,9 +90,9 @@ func (h *DiscountHandler) Create(ctx *gin.Context) {
 	)
 }
 
-func (h *DiscountHandler) Update(ctx *gin.Context) {
+func (h *OrderHandler) Update(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-	var input domain.DiscountRequestBody
+	var input domain.OrderRequestBody
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(
 			http.StatusBadRequest,
@@ -160,7 +107,7 @@ func (h *DiscountHandler) Update(ctx *gin.Context) {
 	}
 
 	user := utils.GetCurrentUser(ctx)
-	input.UpdatedBy = &user.ID
+	input.UserID = user.ID
 
 	res, err := h.uc.Update(id, input)
 	if err != nil {
@@ -186,10 +133,9 @@ func (h *DiscountHandler) Update(ctx *gin.Context) {
 	)
 }
 
-func (h *DiscountHandler) Delete(ctx *gin.Context) {
+func (h *OrderHandler) FindById(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
-
-	err := h.uc.Delete(id)
+	data, err := h.uc.FindOneById(id)
 	if err != nil {
 		ctx.JSON(
 			int(err.Code),
@@ -208,7 +154,7 @@ func (h *DiscountHandler) Delete(ctx *gin.Context) {
 		resp.Response(
 			http.StatusOK,
 			http.StatusText(http.StatusOK),
-			"delete success",
+			data,
 		),
 	)
 }

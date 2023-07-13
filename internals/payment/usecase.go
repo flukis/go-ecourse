@@ -43,5 +43,6 @@ func (uc *paymentUsecase) Create(dto domain.PaymentRequestBody) (*xendit.Invoice
 }
 
 func NewPaymentUsecase() domain.PaymentUsecase {
+	xendit.Opt.SecretKey = os.Getenv("XENDIT_APIKEY")
 	return &paymentUsecase{}
 }
