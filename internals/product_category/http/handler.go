@@ -22,11 +22,11 @@ func NewProductCategoryHandler(uc domain.ProductCategoryUsecase) *ProductCategor
 func (h *ProductCategoryHandler) Route(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
 
+	v1.GET("/product_categories", h.FindAll)
+	v1.GET("/product_categories/:id", h.FindByID)
 	v1.Use(middleware.AuthJwt, middleware.AuthAdmin)
 	{
 		v1.POST("/product_categories", h.Create)
-		v1.GET("/product_categories", h.FindAll)
-		v1.GET("/product_categories/:id", h.FindByID)
 		v1.PATCH("/product_categories/:id", h.Update)
 		v1.DELETE("/product_categories/:id", h.Delete)
 	}
