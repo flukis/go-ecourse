@@ -15,11 +15,11 @@ type CartHandler struct {
 	uc domain.CartUsecase
 }
 
-func NewCartHandler(uc domain.CartUsecase) CartHandler {
-	return CartHandler{uc}
+func NewCartHandler(uc domain.CartUsecase) *CartHandler {
+	return &CartHandler{uc}
 }
 
-func (h CartHandler) Route(r *gin.RouterGroup) {
+func (h *CartHandler) Route(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
 	v1.Use(middleware.AuthJwt)
 	{
@@ -30,7 +30,7 @@ func (h CartHandler) Route(r *gin.RouterGroup) {
 	}
 }
 
-func (h CartHandler) FindByUserID(ctx *gin.Context) {
+func (h *CartHandler) FindByUserID(ctx *gin.Context) {
 	offset, _ := strconv.Atoi(ctx.Query("offset"))
 	limit, _ := strconv.Atoi(ctx.Query("limit"))
 
@@ -48,7 +48,7 @@ func (h CartHandler) FindByUserID(ctx *gin.Context) {
 	)
 }
 
-func (h CartHandler) Create(ctx *gin.Context) {
+func (h *CartHandler) Create(ctx *gin.Context) {
 	var input domain.CartRequestBody
 	if err := ctx.ShouldBind(&input); err != nil {
 		ctx.JSON(
@@ -91,7 +91,7 @@ func (h CartHandler) Create(ctx *gin.Context) {
 	)
 }
 
-func (h CartHandler) Update(ctx *gin.Context) {
+func (h *CartHandler) Update(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	var input domain.CartRequestUpdateBody
 	if err := ctx.ShouldBind(&input); err != nil {
@@ -134,7 +134,7 @@ func (h CartHandler) Update(ctx *gin.Context) {
 	)
 }
 
-func (h CartHandler) Delete(ctx *gin.Context) {
+func (h *CartHandler) Delete(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 
 	err := h.uc.DeleteByUserId(id)

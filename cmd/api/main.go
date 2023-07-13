@@ -16,6 +16,12 @@ import (
 	oauthUC "e-course/internals/oauth"
 	oauthHTTPHandler "e-course/internals/oauth/http"
 	oauthRepo "e-course/internals/oauth/mysql"
+	orderUC "e-course/internals/order"
+	orderHandler "e-course/internals/order/http"
+	orderRepo "e-course/internals/order/mysql"
+	orderDetailUC "e-course/internals/order_detail"
+	orderDetailRepo "e-course/internals/order_detail/mysql"
+	"e-course/internals/payment"
 	productUC "e-course/internals/product"
 	productHandler "e-course/internals/product/http"
 	productRepo "e-course/internals/product/mysql"
@@ -47,6 +53,8 @@ func main() {
 	productRepository := productRepo.NewMysqlProductRepository(db)
 	discountRepository := discountRepo.NewMysqlDiscountRepository(db)
 	cartRepository := cartRepo.NewMysqlCartRepository(db)
+	orderRepo := orderRepo.NewOrderRepository(db)
+	orderDetailRepo := orderDetailRepo.NewOrderDetailRepository(db)
 
 	mediaUsecase := media.NewMediaUsecase()
 	mailUsecase := email.NewMailUsecase()
@@ -61,10 +69,13 @@ func main() {
 		userUsecase,
 		adminUsecase,
 	)
+	paymentUsecase := payment.NewPaymentUsecase()
 	productCategoryUsecase := productCategoryUC.NewProductCategoryUsecase(productCategoryRepository, mediaUsecase)
 	productUsecase := productUC.NewProductUsecase(productRepository, mediaUsecase)
 	discountUsecase := discountUC.NewDiscountUsecase(discountRepository, mediaUsecase)
 	cartUsecase := cartUC.NewCartUsecase(cartRepository)
+	orderDetailUsecase := orderDetailUC.NewOrderDetailUsecase(orderDetailRepo)
+	orderUsecase := orderUC.NewOrderUsecase(orderRepo, cartUsecase, discountUsecase, orderDetailUsecase, paymentUsecase, productUsecase)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,
@@ -88,6 +99,9 @@ func main() {
 		&r.RouterGroup,
 	)
 	cartHandler.NewCartHandler(cartUsecase).Route(
+		&r.RouterGroup,
+	)
+	orderHandler.NewOrderHandler(orderUsecase).Route(
 		&r.RouterGroup,
 	)
 
