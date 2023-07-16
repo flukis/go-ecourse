@@ -32,9 +32,12 @@ import (
 	productCategoryHandler "e-course/internals/product_category/http"
 	productCategoryRepo "e-course/internals/product_category/mysql"
 	"e-course/internals/register"
-	userHTTPHandler "e-course/internals/register/http"
+	registerHandler "e-course/internals/register/http"
 	userUC "e-course/internals/user"
+	userHandler "e-course/internals/user/http"
 	userRepo "e-course/internals/user/mysql"
+	webhookUC "e-course/internals/webhook"
+	webhookHandler "e-course/internals/webhook/http"
 	mysql "e-course/pkg/db/mysql"
 	email "e-course/pkg/mail/sendgrid"
 	media "e-course/pkg/media/cloudinary"
@@ -81,11 +84,15 @@ func main() {
 	cartUsecase := cartUC.NewCartUsecase(cartRepository)
 	orderDetailUsecase := orderDetailUC.NewOrderDetailUsecase(orderDetailRepo)
 	orderUsecase := orderUC.NewOrderUsecase(orderRepo, cartUsecase, discountUsecase, orderDetailUsecase, paymentUsecase, productUsecase)
+	webhookUsecase := webhookUC.NewWebhookUsecase(classroomUsecase, orderUsecase)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,
 	)
-	userHTTPHandler.NewRegisterHandler(registerUsecase).Route(
+	registerHandler.NewRegisterHandler(registerUsecase).Route(
+		&r.RouterGroup,
+	)
+	userHandler.NewUserHandler(userUsecase).Route(
 		&r.RouterGroup,
 	)
 	forgotPasswordHTTPHandler.NewForgotPasswordhandler(forgotpasswordUsecase).Route(
@@ -110,6 +117,9 @@ func main() {
 		&r.RouterGroup,
 	)
 	classRoomHandler.NewClassroomHandler(classroomUsecase).Route(
+		&r.RouterGroup,
+	)
+	webhookHandler.NewWebhookHandler(webhookUsecase).Route(
 		&r.RouterGroup,
 	)
 

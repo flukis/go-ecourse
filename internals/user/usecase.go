@@ -14,27 +14,65 @@ type userUsecase struct {
 	userRepo domain.UserRepository
 }
 
+// Delete implements domain.UserUsecase.
+func (u *userUsecase) Delete(id int) *resp.ErrorResp {
+	user, err := u.userRepo.FindOneByID(id)
+	if err != nil {
+		return err
+	}
+	return u.userRepo.Delete(*user)
+}
+
+// FindAll implements domain.UserUsecase.
+func (u *userUsecase) FindAll(offset int, limit int) []domain.User {
+	return u.userRepo.FindAll(offset, limit)
+}
+
+// FindOneByCodeVerified implements domain.UserUsecase.
+func (u *userUsecase) FindOneByCodeVerified(codeVerified string) (*domain.User, *resp.ErrorResp) {
+	return u.userRepo.FindOneByVerificationCode(codeVerified)
+}
+
+// FindOneById implements domain.UserUsecase.
+func (u *userUsecase) FindOneById(id int) (*domain.User, *resp.ErrorResp) {
+	return u.userRepo.FindOneByID(id)
+}
+
+// TotalCountUser implements domain.UserUsecase.
+func (u *userUsecase) TotalCountUser() int64 {
+	return u.userRepo.TotalCountUser()
+}
+
 // UpdatePassword implements domain.UserUsecase.
 func (u *userUsecase) UpdatePassword(id int, data domain.UserUpdateRequestBody) (*domain.User, *resp.ErrorResp) {
 	user, err := u.userRepo.FindOneByID(id)
 	if err != nil {
 		return nil, err
 	}
-	user.Name = data.Name
-	if data.Password == nil {
-		return nil, &resp.ErrorResp{
-			Code: 400,
-			Err:  errors.New("password missing"),
+	if data.Email != nil {
+		if user.Email != *data.Email {
+			user.Email = *data.Email
 		}
 	}
-	hashedPwd, errBcrypt := bcrypt.GenerateFromPassword([]byte(*data.Password), bcrypt.DefaultCost)
-	if errBcrypt != nil {
-		return nil, &resp.ErrorResp{
-			Code: 500,
-			Err:  errBcrypt,
+	if data.Name != nil {
+		if user.Name != *data.Name {
+			user.Name = *data.Name
 		}
 	}
-	user.Password = string(hashedPwd)
+	user.Name = *data.Name
+	if data.Password != nil {
+		hashedPwd, errBcrypt := bcrypt.GenerateFromPassword([]byte(*data.Password), bcrypt.DefaultCost)
+		if errBcrypt != nil {
+			return nil, &resp.ErrorResp{
+				Code: 500,
+				Err:  errBcrypt,
+			}
+		}
+		user.Password = string(hashedPwd)
+	}
+	if data.UpdatedBy == nil {
+		user.UpdatedByID = data.UpdatedBy
+	}
 	updatedUser, err := u.userRepo.Update(*user)
 	if err != nil {
 		return nil, err
