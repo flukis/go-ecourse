@@ -38,19 +38,19 @@ func (r *classroomRepository) FindAllByUserId(userId int, offset int, limit int)
 
 // FindOneByUserIdAndProductId implements domain.ClassRoomRepository.
 func (r *classroomRepository) FindOneByUserIdAndProductId(userId int, productId int) (*domain.ClassRoom, *resp.ErrorResp) {
-	var room domain.ClassRoom
+	var classRoom domain.ClassRoom
 
 	if err := r.db.Preload("Product.ProductCategory").
 		Where("user_id = ?", userId).
-		Where("product_id = ?", userId).
-		Find(&room); err != nil {
+		Where("product_id = ?", productId).
+		First(&classRoom).Error; err != nil {
 		return nil, &resp.ErrorResp{
 			Code: 500,
-			Err:  nil,
+			Err:  err,
 		}
 	}
 
-	return &room, nil
+	return &classRoom, nil
 }
 
 func NewClassroomRepository(db *gorm.DB) domain.ClassRoomRepository {

@@ -132,22 +132,7 @@ func (uc *orderUsecase) Create(dto domain.OrderRequestBody) (*domain.Order, *res
 		}
 	}
 	externalId := extId.String()
-
-	data, err := uc.orderRepo.Create(order)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, product := range products {
-		orderDetail := domain.OrderDetail{
-			OrderID:     data.ID,
-			ProductID:   &product.ID,
-			Price:       product.Price,
-			CreatedByID: order.UserID,
-		}
-
-		uc.orderDetailUsecase.Create(orderDetail)
-	}
+	order.ExternalID = externalId
 
 	// hit payment xendit
 	dataPayment := domain.PaymentRequestBody{
@@ -161,8 +146,24 @@ func (uc *orderUsecase) Create(dto domain.OrderRequestBody) (*domain.Order, *res
 	if err != nil {
 		return nil, err
 	}
+	order.CheckoutLink = payment.InvoiceURL
 
+	data, err := uc.orderRepo.Create(order)
+	if err != nil {
+		return nil, err
+	}
 	data.CheckoutLink = payment.InvoiceURL
+
+	for _, product := range products {
+		orderDetail := domain.OrderDetail{
+			OrderID:     data.ID,
+			ProductID:   &product.ID,
+			Price:       product.Price,
+			CreatedByID: order.UserID,
+		}
+
+		uc.orderDetailUsecase.Create(orderDetail)
+	}
 
 	// update qty
 	if dto.DiscountCode != nil {

@@ -18,11 +18,11 @@ type User struct {
 	UpdatedAt       *time.Time     `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `json:"deleted_at"`
 
-	//CreatedByID *int64 `json:"created_by" gorm:"column:created_by"`
-	//CreatedBy   *Admin `json:"-" gorm:"foreignKey:CreatedByID;references:ID"`
+	CreatedByID *int64 `json:"created_by" gorm:"column:created_by"`
+	CreatedBy   *Admin `json:"-" gorm:"foreignKey:CreatedByID;references:ID"`
 
-	//UpdatedByID *int64 `json:"updated_by" gorm:"column:updated_by"`
-	//UpdatedBy   *Admin `json:"-" gorm:"foreignKey:UpdatedByID;references:ID"`
+	UpdatedByID *int64 `json:"updated_by" gorm:"column:updated_by"`
+	UpdatedBy   *Admin `json:"-" gorm:"foreignKey:UpdatedByID;references:ID"`
 }
 
 type UserRepository interface {
@@ -32,7 +32,7 @@ type UserRepository interface {
 	FindOneByVerificationCode(email string) (*User, *resp.ErrorResp)
 	Create(u User) (*User, *resp.ErrorResp)
 	Update(u User) (*User, *resp.ErrorResp)
-	Delete(u User) (*User, *resp.ErrorResp)
+	Delete(u User) *resp.ErrorResp
 	TotalCountUser() int64
 }
 
@@ -44,16 +44,21 @@ type UserCreateRequestBody struct {
 }
 
 type UserUpdateRequestBody struct {
-	Name            string     `json:"name" `
-	Email           string     `json:"email"`
+	Name            *string    `json:"name" `
+	Email           *string    `json:"email"`
 	Password        *string    `json:"password"`
 	EmailVerifiedAt *time.Time `json:"email_verified_at"`
-	CreatedBy       *int64     `json:"created_by"`
+	UpdatedBy       *int64     `json:"updated_by"`
 }
 
 type UserUsecase interface {
 	Create(data UserCreateRequestBody) (*User, *resp.ErrorResp)
 	FindByEmail(email string) (*User, *resp.ErrorResp)
 	FindOneByID(id int) (*User, *resp.ErrorResp)
+	FindAll(offset int, limit int) []User
+	FindOneById(id int) (*User, *resp.ErrorResp)
+	FindOneByCodeVerified(codeVerified string) (*User, *resp.ErrorResp)
+	Delete(id int) *resp.ErrorResp
+	TotalCountUser() int64
 	UpdatePassword(id int, data UserUpdateRequestBody) (*User, *resp.ErrorResp)
 }
