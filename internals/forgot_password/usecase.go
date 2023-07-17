@@ -33,11 +33,19 @@ func (u *forgotPasswordUsecase) Create(data domain.ForgotPasswordRequestBody) (*
 		}
 	}
 
+	code, errGen := utils.GenerateRefreshToken()
+	if errGen != nil {
+		return nil, &resp.ErrorResp{
+			Code: 500,
+			Err:  errGen,
+		}
+	}
+
 	expDate := time.Now().Add(3 * 1 * time.Hour)
 	forgotPwd := domain.ForgotPassword{
 		UserID:    &user.ID,
 		Valid:     true,
-		Code:      utils.RandString(12),
+		Code:      code.String(),
 		ExpiredAt: &expDate,
 	}
 
