@@ -10,6 +10,8 @@ import (
 	classRoomUC "e-course/internals/class_room"
 	classRoomHandler "e-course/internals/class_room/http"
 	classRoomRepo "e-course/internals/class_room/mysql"
+	dashboardUC "e-course/internals/dashboard"
+	dashboardHandler "e-course/internals/dashboard/http"
 	discountUC "e-course/internals/discount"
 	discountHandler "e-course/internals/discount/http"
 	discountRepo "e-course/internals/discount/mysql"
@@ -85,6 +87,7 @@ func main() {
 	orderDetailUsecase := orderDetailUC.NewOrderDetailUsecase(orderDetailRepo)
 	orderUsecase := orderUC.NewOrderUsecase(orderRepo, cartUsecase, discountUsecase, orderDetailUsecase, paymentUsecase, productUsecase)
 	webhookUsecase := webhookUC.NewWebhookUsecase(classroomUsecase, orderUsecase)
+	dashboardUsecase := dashboardUC.NewDasboardUsecase(userUsecase, adminUsecase, productUsecase, orderUsecase)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,
@@ -120,6 +123,9 @@ func main() {
 		&r.RouterGroup,
 	)
 	webhookHandler.NewWebhookHandler(webhookUsecase).Route(
+		&r.RouterGroup,
+	)
+	dashboardHandler.NewDashboardHandler(dashboardUsecase).Route(
 		&r.RouterGroup,
 	)
 
