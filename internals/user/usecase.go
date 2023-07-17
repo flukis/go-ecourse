@@ -5,6 +5,7 @@ import (
 	"e-course/pkg/resp"
 	"e-course/pkg/utils"
 	"errors"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -59,7 +60,10 @@ func (u *userUsecase) UpdatePassword(id int, data domain.UserUpdateRequestBody) 
 			user.Name = *data.Name
 		}
 	}
-	user.Name = *data.Name
+	fmt.Println(data)
+	if data.EmailVerifiedAt != nil {
+		user.EmailVerifiedAt = data.EmailVerifiedAt
+	}
 	if data.Password != nil {
 		hashedPwd, errBcrypt := bcrypt.GenerateFromPassword([]byte(*data.Password), bcrypt.DefaultCost)
 		if errBcrypt != nil {
