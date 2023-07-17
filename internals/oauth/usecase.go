@@ -20,6 +20,23 @@ type oAuthUsecase struct {
 	adminUsecase domain.AdminUsecase
 }
 
+// Logout implements domain.OauthUsecase.
+func (uc *oAuthUsecase) Logout(accessToken string) *resp.ErrorResp {
+	oauthAccess, err := uc.accessToken.FindOneByAccessToken(accessToken)
+	if err != nil {
+		return err
+	}
+
+	oauthRefresh, err := uc.refreshToken.FindOneByAccessTokenID(int(oauthAccess.ID))
+	if err != nil {
+		return err
+	}
+
+	uc.refreshToken.Delete(*oauthRefresh)
+	uc.accessToken.Delete(*oauthAccess)
+	return nil
+}
+
 // Refresh implements domain.OauthUsecase.
 func (uc *oAuthUsecase) Refresh(data domain.RefreshTokenRequestBody) (*domain.LoginResponse, *resp.ErrorResp) {
 	// check oaut refresh token

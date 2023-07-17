@@ -67,7 +67,7 @@ type OauthRefreshToken struct {
 type OauthRefreshTokenRepository interface {
 	Create(entity OauthRefreshToken) (*OauthRefreshToken, *resp.ErrorResp)
 	FindOneByToken(token string) (*OauthRefreshToken, *resp.ErrorResp)
-	FindOneByAccessTokenID(accessToken string) (*OauthRefreshToken, *resp.ErrorResp)
+	FindOneByAccessTokenID(accessTokenID int) (*OauthRefreshToken, *resp.ErrorResp)
 	Delete(OauthRefreshToken) *resp.ErrorResp
 }
 
@@ -125,4 +125,5 @@ type MapClaimResponse struct {
 type OauthUsecase interface {
 	Login(data LoginRequestBody) (*LoginResponse, *resp.ErrorResp)
 	Refresh(data RefreshTokenRequestBody) (*LoginResponse, *resp.ErrorResp)
+	Logout(accessToken string) *resp.ErrorResp
 }

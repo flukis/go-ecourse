@@ -52,7 +52,7 @@ func (m *mysqlOauthRefreshTokenRepository) Create(entity domain.OauthRefreshToke
 }
 
 // FindOneByRefreshToken implements domain.OauthRefreshTokenRepository.
-func (m *mysqlOauthRefreshTokenRepository) FindOneByAccessTokenID(accessToken string) (*domain.OauthRefreshToken, *resp.ErrorResp) {
+func (m *mysqlOauthRefreshTokenRepository) FindOneByAccessTokenID(accessToken int) (*domain.OauthRefreshToken, *resp.ErrorResp) {
 	var refrehToken domain.OauthRefreshToken
 	if err := m.db.
 		Where("oauth_access_token_id = ?", accessToken).
