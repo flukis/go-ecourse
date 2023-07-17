@@ -56,7 +56,6 @@ type UserUsecase interface {
 	FindByEmail(email string) (*User, *resp.ErrorResp)
 	FindOneByID(id int) (*User, *resp.ErrorResp)
 	FindAll(offset int, limit int) []User
-	FindOneById(id int) (*User, *resp.ErrorResp)
 	FindOneByCodeVerified(codeVerified string) (*User, *resp.ErrorResp)
 	Delete(id int) *resp.ErrorResp
 	TotalCountUser() int64

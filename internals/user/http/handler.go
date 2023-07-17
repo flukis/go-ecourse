@@ -22,17 +22,13 @@ func NewUserHandler(uc domain.UserUsecase) *UserHandler {
 func (h *UserHandler) Route(r *gin.RouterGroup) {
 	v1 := r.Group("/api/v1")
 
-	v1.Use(middleware.AuthJwt)
-	{
-		v1.GET("/users/:id", h.FindByID)
-	}
-
 	v1.Use(middleware.AuthJwt, middleware.AuthAdmin)
 	{
 		v1.POST("/users", h.Create)
 		v1.GET("/users", h.FindAll)
 		v1.PATCH("/users/:id", h.Update)
 		v1.DELETE("/users/:id", h.Delete)
+		v1.GET("/users/:id", h.FindByID)
 	}
 }
 

@@ -33,6 +33,8 @@ import (
 	productCategoryUC "e-course/internals/product_category"
 	productCategoryHandler "e-course/internals/product_category/http"
 	productCategoryRepo "e-course/internals/product_category/mysql"
+	profileUC "e-course/internals/profile"
+	profileHandler "e-course/internals/profile/http"
 	"e-course/internals/register"
 	registerHandler "e-course/internals/register/http"
 	userUC "e-course/internals/user"
@@ -88,6 +90,7 @@ func main() {
 	orderUsecase := orderUC.NewOrderUsecase(orderRepo, cartUsecase, discountUsecase, orderDetailUsecase, paymentUsecase, productUsecase)
 	webhookUsecase := webhookUC.NewWebhookUsecase(classroomUsecase, orderUsecase)
 	dashboardUsecase := dashboardUC.NewDasboardUsecase(userUsecase, adminUsecase, productUsecase, orderUsecase)
+	profileUsecase := profileUC.NewProfileUsecase(userUsecase, oauthUseCase)
 
 	oauthHTTPHandler.NewOAuthHandler(oauthUseCase).Route(
 		&r.RouterGroup,
@@ -126,6 +129,9 @@ func main() {
 		&r.RouterGroup,
 	)
 	dashboardHandler.NewDashboardHandler(dashboardUsecase).Route(
+		&r.RouterGroup,
+	)
+	profileHandler.NewProfileHandler(profileUsecase).Route(
 		&r.RouterGroup,
 	)
 
