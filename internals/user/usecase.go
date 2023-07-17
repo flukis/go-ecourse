@@ -120,11 +120,19 @@ func (u *userUsecase) Create(data domain.UserCreateRequestBody) (*domain.User, *
 		}
 	}
 
+	code, errGen := utils.GenerateRefreshToken()
+	if errGen != nil {
+		return nil, &resp.ErrorResp{
+			Code: 500,
+			Err:  errGen,
+		}
+	}
+
 	user := domain.User{
 		Name:         data.Email,
 		Email:        data.Email,
 		Password:     string(hashedPwd),
-		CodeVerified: utils.RandString(6),
+		CodeVerified: code.String(),
 	}
 
 	dataUser, err := u.userRepo.Create(user)
