@@ -69,8 +69,11 @@ func (r *mysqlAdminRepository) FindOneByID(id int) (*domain.Admin, *resp.ErrorRe
 }
 
 // TotalCountAdmin implements domain.AdminRepository.
-func (*mysqlAdminRepository) TotalCountAdmin() int64 {
-	panic("unimplemented")
+func (r *mysqlAdminRepository) TotalCountAdmin() int64 {
+	var admin domain.Admin
+	var totalAdmin int64
+	r.db.Model(&admin).Count(&totalAdmin)
+	return totalAdmin
 }
 
 // Update implements domain.AdminRepository.

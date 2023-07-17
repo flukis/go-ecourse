@@ -71,8 +71,8 @@ func (u *adminUsecase) FindOneByID(id int) (*domain.Admin, *resp.ErrorResp) {
 }
 
 // TotalCountAdmin implements domain.AdminUsecase.
-func (*adminUsecase) TotalCountAdmin() int64 {
-	panic("unimplemented")
+func (u *adminUsecase) TotalCountAdmin() int64 {
+	return u.repo.TotalCountAdmin()
 }
 
 // Update implements domain.AdminUsecase.
