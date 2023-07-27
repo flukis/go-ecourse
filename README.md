@@ -11,5 +11,3 @@
 ## Description
 
 Pembuatan API untuk online course menggunakan bahasa Go, API ini menggunakan authentication berbasis token yaitu JWT dan authorization berbasis token juga
-
-## Working On
